@@ -9,7 +9,7 @@ title: 信息技术教师招聘复习指南
 
 ## 🚀 快速开始
 
-### 📖 [进入完整学习指南](IT-Teacher-Guide/docs/)
+### 📖 [进入完整学习指南](docs/)
 
 点击上方链接进入完整的学习指南，包含：
 
@@ -51,14 +51,14 @@ title: 信息技术教师招聘复习指南
 
 | 分类 | 内容 | 链接 |
 |------|------|------|
-| 🐍 Python | 基础语法、数据类型、面向对象 | [Python教程](IT-Teacher-Guide/docs/python/01-basics.md) |
-| 🔧 C++ | 基础语法、指针、STL标准库 | [C++教程](IT-Teacher-Guide/docs/cpp/01-basics.md) |
-| 📊 数据结构 | 线性结构、树、图、哈希表 | [数据结构](IT-Teacher-Guide/docs/data-structure/linear.md) |
-| 🧮 算法 | 排序、搜索、动态规划 | [算法专题](IT-Teacher-Guide/docs/algorithm/sorting.md) |
-| 📚 资源 | FAQ、学习资源、速查手册 | [辅助资源](IT-Teacher-Guide/docs/resources.md) |
+| 🐍 Python | 基础语法、数据类型、面向对象 | [Python教程](docs/python/01-basics.md) |
+| 🔧 C++ | 基础语法、指针、STL标准库 | [C++教程](docs/cpp/01-basics.md) |
+| 📊 数据结构 | 线性结构、树、图、哈希表 | [数据结构](docs/data-structure/linear.md) |
+| 🧮 算法 | 排序、搜索、动态规划 | [算法专题](docs/algorithm/sorting.md) |
+| 📚 资源 | FAQ、学习资源、速查手册 | [辅助资源](docs/resources.md) |
 
 ---
 
-💡 **提示**: 建议先阅读 [学习指南](IT-Teacher-Guide/docs/) 了解完整的学习计划，然后根据自己的基础选择合适的学习路径。
+💡 **提示**: 建议先阅读 [学习指南](docs/) 了解完整的学习计划，然后根据自己的基础选择合适的学习路径。
 
 🎯 **目标**: 帮助您在教师招聘考试中取得优异成绩！

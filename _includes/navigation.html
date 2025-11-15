@@ -1,14 +1,21 @@
 <nav class="top-nav">
     <div class="nav-container">
         <!-- 品牌标识 -->
-        <a href="{{ '/' | relative_url }}" class="nav-brand">
+        <a href="/IT-Teacher-Guide/" class="nav-brand">
             📚 IT教师指南
         </a>
         
+        <!-- 汉堡菜单按钮 (移动端) -->
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="切换菜单">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+        
         <!-- 导航菜单 -->
-        <ul class="nav-menu">
+        <ul class="nav-menu" id="nav-menu">
             <li class="nav-item">
-                <a href="{{ '/' | relative_url }}" 
+                <a href="/IT-Teacher-Guide/" 
                    class="{% if page.url == '/' %}active{% endif %}">
                     首页
                 </a>

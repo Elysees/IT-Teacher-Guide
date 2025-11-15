@@ -1,11 +1,11 @@
 // IT教师指南 - 主要JavaScript功能
-// 包含学习进度跟踪、知识点搜索等功能
+// 包含学习进度跟踪、基于Lunr.js的全文搜索等功能
 
 (function() {
     'use strict';
     
     // 全局变量
-    let searchData = [];
+    let searchIndex = null;
     let progressData = {
         completed: [],
         total: 21
@@ -14,7 +14,13 @@
     // 初始化函数
     function init() {
         initProgressTracking();
+        initSearchIndex();
         initSearch();
+        initMobileMenu();
+        initScrollProgress();
+        initBackToTop();
+        initSmoothScroll();
+        initKeyboardNavigation();
         loadProgressFromStorage();
         updateProgressDisplay();
     }
@@ -96,6 +102,39 @@
         }
     }
     
+    // ===== 搜索索引初始化 =====
+    
+    function initSearchIndex() {
+        if (typeof lunr === 'undefined' || !window.searchData) {
+            console.warn('Lunr.js 或搜索数据未加载');
+            return;
+        }
+        
+        try {
+            // 创建 Lunr 搜索索引，支持中文
+            searchIndex = lunr(function() {
+                // 配置中文支持
+                this.use(lunr.zh);
+                
+                // 定义字段
+                this.ref('id');
+                this.field('title', { boost: 10 });
+                this.field('content', { boost: 5 });
+                this.field('category', { boost: 3 });
+                this.field('keywords', { boost: 8 });
+                
+                // 添加文档到索引
+                window.searchData.forEach(function(doc) {
+                    this.add(doc);
+                }, this);
+            });
+            
+            console.log('搜索索引初始化成功');
+        } catch (error) {
+            console.error('搜索索引初始化失败:', error);
+        }
+    }
+    
     // ===== 知识点搜索功能 =====
     
     function initSearch() {
@@ -104,9 +143,6 @@
         const searchResults = document.getElementById('search-results');
         
         if (!searchInput || !searchResults) return;
-        
-        // 准备搜索数据
-        prepareSearchData();
         
         // 搜索输入事件
         let searchTimeout;
@@ -149,184 +185,104 @@
         });
     }
     
-    function prepareSearchData() {
-        // 搜索数据结构
-        searchData = [
-            // Python教程
-            {
-                title: 'Python基础入门',
-                url: '/IT-Teacher-Guide/docs/python/01-basics.html',
-                category: 'Python',
-                keywords: ['python', '基础', '入门', '变量', '语法', '环境']
-            },
-            {
-                title: 'Python数据类型',
-                url: '/IT-Teacher-Guide/docs/python/02-data-types.html',
-                category: 'Python',
-                keywords: ['python', '数据类型', '字符串', '列表', '字典', '元组']
-            },
-            {
-                title: 'Python控制流',
-                url: '/IT-Teacher-Guide/docs/python/03-control-flow.html',
-                category: 'Python',
-                keywords: ['python', '控制流', 'if', 'for', 'while', '循环', '条件']
-            },
-            {
-                title: 'Python函数',
-                url: '/IT-Teacher-Guide/docs/python/04-functions.html',
-                category: 'Python',
-                keywords: ['python', '函数', 'def', '参数', '返回值', 'lambda']
-            },
-            {
-                title: 'Python面向对象',
-                url: '/IT-Teacher-Guide/docs/python/05-oop.html',
-                category: 'Python',
-                keywords: ['python', '面向对象', '类', '对象', '继承', '封装']
-            },
-            {
-                title: 'Python常用模块',
-                url: '/IT-Teacher-Guide/docs/python/06-common-modules.html',
-                category: 'Python',
-                keywords: ['python', '模块', 'import', '库', 'os', 'sys', 'json']
-            },
+    function performSearch(query) {
+        if (!searchIndex || !window.searchData) {
+            console.warn('搜索索引未初始化');
+            return;
+        }
+        
+        try {
+            // 使用 Lunr.js 进行搜索
+            const results = searchIndex.search(query);
             
-            // C++教程
-            {
-                title: 'C++基础入门',
-                url: '/IT-Teacher-Guide/docs/cpp/01-basics.html',
-                category: 'C++',
-                keywords: ['c++', 'cpp', '基础', '入门', '编译', '语法']
-            },
-            {
-                title: 'C++数据类型与指针',
-                url: '/IT-Teacher-Guide/docs/cpp/02-data-types.html',
-                category: 'C++',
-                keywords: ['c++', 'cpp', '数据类型', '指针', '引用', '内存']
-            },
-            {
-                title: 'C++控制流',
-                url: '/IT-Teacher-Guide/docs/cpp/03-control-flow.html',
-                category: 'C++',
-                keywords: ['c++', 'cpp', '控制流', 'if', 'for', 'while', '循环']
-            },
-            {
-                title: 'C++函数',
-                url: '/IT-Teacher-Guide/docs/cpp/04-functions.html',
-                category: 'C++',
-                keywords: ['c++', 'cpp', '函数', '重载', '模板', '参数']
-            },
-            {
-                title: 'C++面向对象',
-                url: '/IT-Teacher-Guide/docs/cpp/05-oop.html',
-                category: 'C++',
-                keywords: ['c++', 'cpp', '面向对象', '类', '继承', '多态', '虚函数']
-            },
-            {
-                title: 'C++STL标准库',
-                url: '/IT-Teacher-Guide/docs/cpp/06-stl.html',
-                category: 'C++',
-                keywords: ['c++', 'cpp', 'stl', '标准库', 'vector', 'map', '容器']
-            },
+            // 获取搜索结果的详细信息
+            const searchResults = results.map(result => {
+                const doc = window.searchData.find(item => item.id === result.ref);
+                return {
+                    ...doc,
+                    score: result.score,
+                    excerpt: generateExcerpt(doc.content, query)
+                };
+            }).slice(0, 8); // 限制显示前8个结果
             
-            // 数据结构
-            {
-                title: '线性结构',
-                url: '/IT-Teacher-Guide/docs/data-structure/linear.html',
-                category: '数据结构',
-                keywords: ['数据结构', '线性', '数组', '链表', '栈', '队列']
-            },
-            {
-                title: '树形结构',
-                url: '/IT-Teacher-Guide/docs/data-structure/tree.html',
-                category: '数据结构',
-                keywords: ['数据结构', '树', '二叉树', '平衡树', '遍历', 'BST']
-            },
-            {
-                title: '图结构',
-                url: '/IT-Teacher-Guide/docs/data-structure/graph.html',
-                category: '数据结构',
-                keywords: ['数据结构', '图', 'DFS', 'BFS', '最短路径', '拓扑排序']
-            },
-            {
-                title: '哈希表',
-                url: '/IT-Teacher-Guide/docs/data-structure/hash.html',
-                category: '数据结构',
-                keywords: ['数据结构', '哈希', 'hash', '散列', '冲突', '查找']
-            },
-            
-            // 算法专题
-            {
-                title: '排序算法',
-                url: '/IT-Teacher-Guide/docs/algorithm/sorting.html',
-                category: '算法',
-                keywords: ['算法', '排序', '冒泡', '快排', '归并', '堆排序']
-            },
-            {
-                title: '搜索算法',
-                url: '/IT-Teacher-Guide/docs/algorithm/searching.html',
-                category: '算法',
-                keywords: ['算法', '搜索', '查找', '二分', '线性搜索']
-            },
-            {
-                title: '动态规划',
-                url: '/IT-Teacher-Guide/docs/algorithm/dynamic-programming.html',
-                category: '算法',
-                keywords: ['算法', '动态规划', 'dp', '递推', '最优化']
-            }
-        ];
+            displaySearchResults(searchResults, query);
+        } catch (error) {
+            console.error('搜索执行失败:', error);
+        }
     }
     
-    function performSearch(query) {
-        const results = [];
-        const queryLower = query.toLowerCase();
+    function generateExcerpt(content, query) {
+        if (!content || !query) return '';
         
-        searchData.forEach(item => {
-            let score = 0;
-            
-            // 标题匹配（权重最高）
-            if (item.title.toLowerCase().includes(queryLower)) {
-                score += 10;
+        const words = query.toLowerCase().split(/\s+/);
+        const contentLower = content.toLowerCase();
+        
+        // 查找第一个匹配的关键词位置
+        let matchIndex = -1;
+        for (const word of words) {
+            const index = contentLower.indexOf(word);
+            if (index !== -1) {
+                matchIndex = index;
+                break;
             }
-            
-            // 关键词匹配
-            item.keywords.forEach(keyword => {
-                if (keyword.toLowerCase().includes(queryLower)) {
-                    score += 5;
-                }
-            });
-            
-            // 分类匹配
-            if (item.category.toLowerCase().includes(queryLower)) {
-                score += 3;
-            }
-            
-            if (score > 0) {
-                results.push({ ...item, score });
-            }
+        }
+        
+        if (matchIndex === -1) {
+            return content.substring(0, 120) + '...';
+        }
+        
+        // 提取匹配位置前后的文本
+        const start = Math.max(0, matchIndex - 60);
+        const end = Math.min(content.length, matchIndex + 120);
+        let excerpt = content.substring(start, end);
+        
+        if (start > 0) excerpt = '...' + excerpt;
+        if (end < content.length) excerpt = excerpt + '...';
+        
+        return excerpt;
+    }
+    
+    function highlightText(text, query) {
+        if (!text || !query) return text;
+        
+        const words = query.split(/\s+/).filter(word => word.length > 0);
+        let highlightedText = text;
+        
+        words.forEach(word => {
+            const regex = new RegExp(`(${word})`, 'gi');
+            highlightedText = highlightedText.replace(regex, '<mark>$1</mark>');
         });
         
-        // 按分数排序
-        results.sort((a, b) => b.score - a.score);
-        
-        displaySearchResults(results.slice(0, 8)); // 最多显示8个结果
+        return highlightedText;
     }
     
-    function displaySearchResults(results) {
+    function displaySearchResults(results, query) {
         const searchResults = document.getElementById('search-results');
         if (!searchResults) return;
         
         if (results.length === 0) {
-            searchResults.innerHTML = '<div class="search-result-item">未找到相关内容</div>';
-        } else {
-            searchResults.innerHTML = results.map(item => `
-                <div class="search-result-item" onclick="navigateToResult('${item.url}')">
-                    <div class="search-result-title">${item.title}</div>
-                    <div class="search-result-excerpt">${item.category}</div>
-                </div>
-            `).join('');
+            searchResults.innerHTML = '<div class="search-no-results">未找到相关结果</div>';
+            showSearchResults();
+            return;
         }
         
-        searchResults.style.display = 'block';
+        const html = results.map(result => `
+            <div class="search-result-item" onclick="window.location.href='${result.url}'">
+                <div class="search-result-title">${highlightText(result.title, query)}</div>
+                <div class="search-result-category">${result.category}</div>
+                <div class="search-result-excerpt">${highlightText(result.excerpt, query)}</div>
+            </div>
+        `).join('');
+        
+        searchResults.innerHTML = html;
+        showSearchResults();
+    }
+    
+    function showSearchResults() {
+        const searchResults = document.getElementById('search-results');
+        if (searchResults) {
+            searchResults.style.display = 'block';
+        }
     }
     
     function hideSearchResults() {
@@ -336,10 +292,212 @@
         }
     }
     
-    // 导航到搜索结果
-    window.navigateToResult = function(url) {
-        window.location.href = url;
-    };
+    // ===== 响应式导航菜单功能 =====
+    
+    function initMobileMenu() {
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const navMenu = document.getElementById('nav-menu');
+        
+        if (!mobileMenuToggle || !navMenu) return;
+        
+        mobileMenuToggle.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navMenu.classList.toggle('active');
+            
+            // 防止背景滚动
+            if (navMenu.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        });
+        
+        // 点击菜单项后关闭菜单
+        const navItems = navMenu.querySelectorAll('.nav-item a');
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                mobileMenuToggle.classList.remove('active');
+                navMenu.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        });
+        
+        // 点击外部关闭菜单
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.nav-container')) {
+                mobileMenuToggle.classList.remove('active');
+                navMenu.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+    }
+    
+    // ===== 滚动进度指示器 =====
+    
+    function initScrollProgress() {
+        const scrollProgress = document.getElementById('scroll-progress');
+        if (!scrollProgress) return;
+        
+        const updateScrollProgress = throttle(function() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = (scrollTop / scrollHeight) * 100;
+            
+            scrollProgress.style.width = Math.min(progress, 100) + '%';
+        }, 10);
+        
+        window.addEventListener('scroll', updateScrollProgress);
+        updateScrollProgress(); // 初始化
+    }
+    
+    // ===== 回到顶部按钮 =====
+    
+    function initBackToTop() {
+        const backToTopBtn = document.getElementById('back-to-top');
+        if (!backToTopBtn) return;
+        
+        const toggleBackToTop = throttle(function() {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        }, 100);
+        
+        window.addEventListener('scroll', toggleBackToTop);
+        
+        backToTopBtn.addEventListener('click', function() {
+            smoothScrollTo(0, 800);
+        });
+    }
+    
+    // ===== 平滑滚动功能 =====
+    
+    function initSmoothScroll() {
+        // 为所有锚点链接添加平滑滚动
+        const anchorLinks = document.querySelectorAll('a[href^="#"]');
+        
+        anchorLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href === '#') return;
+                
+                const target = document.querySelector(href);
+                if (target) {
+                    e.preventDefault();
+                    const targetPosition = target.offsetTop - 80; // 考虑固定导航栏高度
+                    smoothScrollTo(targetPosition, 800);
+                }
+            });
+        });
+    }
+    
+    function smoothScrollTo(targetPosition, duration) {
+        const startPosition = window.pageYOffset;
+        const distance = targetPosition - startPosition;
+        let startTime = null;
+        
+        function animation(currentTime) {
+            if (startTime === null) startTime = currentTime;
+            const timeElapsed = currentTime - startTime;
+            const run = easeInOutQuad(timeElapsed, startPosition, distance, duration);
+            window.scrollTo(0, run);
+            if (timeElapsed < duration) requestAnimationFrame(animation);
+        }
+        
+        requestAnimationFrame(animation);
+    }
+    
+    function easeInOutQuad(t, b, c, d) {
+        t /= d / 2;
+        if (t < 1) return c / 2 * t * t + b;
+        t--;
+        return -c / 2 * (t * (t - 2) - 1) + b;
+    }
+    
+    // ===== 键盘导航支持 =====
+    
+    function initKeyboardNavigation() {
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + K 打开搜索
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                const searchInput = document.getElementById('search-input');
+                if (searchInput) {
+                    searchInput.focus();
+                }
+            }
+            
+            // ESC 关闭搜索结果和移动菜单
+            if (e.key === 'Escape') {
+                hideSearchResults();
+                const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+                const navMenu = document.getElementById('nav-menu');
+                if (mobileMenuToggle && navMenu) {
+                    mobileMenuToggle.classList.remove('active');
+                    navMenu.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }
+            
+            // 空格键回到顶部（当焦点不在输入框时）
+            if (e.key === ' ' && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+                if (e.shiftKey) {
+                    e.preventDefault();
+                    smoothScrollTo(0, 800);
+                }
+            }
+        });
+        
+        // 改善焦点可见性
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                document.body.classList.add('keyboard-navigation');
+            }
+        });
+        
+        document.addEventListener('mousedown', function() {
+            document.body.classList.remove('keyboard-navigation');
+        });
+    }
+    
+    // ===== 工具函数 =====
+    
+    // 节流函数
+    function throttle(func, limit) {
+        let inThrottle;
+        return function() {
+            const args = arguments;
+            const context = this;
+            if (!inThrottle) {
+                func.apply(context, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        };
+    }
+    
+    // 防抖函数
+    function debounce(func, wait, immediate) {
+        let timeout;
+        return function() {
+            const context = this;
+            const args = arguments;
+            const later = function() {
+                timeout = null;
+                if (!immediate) func.apply(context, args);
+            };
+            const callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) func.apply(context, args);
+        };
+    }
+    
+    // 检测用户偏好的动画设置
+    function respectsReducedMotion() {
+        return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
     
     // ===== 页面加载完成后初始化 =====
     
