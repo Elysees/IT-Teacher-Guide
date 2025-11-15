@@ -1458,7 +1458,7 @@ int main() {
     }
     
     // 计算滞纳金
-    vector<pair<string, int>> borrowed = {{"C++ Primer", 7}, {"计算机学报", 3}};
+    vector<pair<string, int>> borrowed = {% raw %}{{"C++ Primer", 7}, {"计算机学报", 3}}{% endraw %};
     double fee = lib.calculateTotalLateFee(borrowed);
     cout << "\n总滞纳金: $" << fee << endl;
     
