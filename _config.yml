@@ -1,0 +1,46 @@
+# Jekyll配置文件
+title: 信息技术教师招聘复习指南
+description: Python与C++基础知识手册 - 为教师招聘考试准备
+baseurl: ""
+url: ""
+
+# 主题配置
+theme: jekyll-theme-cayman
+markdown: kramdown
+highlighter: rouge
+
+# 代码高亮
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    block:
+      line_numbers: true
+
+# 导航菜单
+navigation:
+  - title: 首页
+    url: /
+  - title: Python教程
+    url: /docs/python/
+  - title: C++教程
+    url: /docs/cpp/
+  - title: 算法专题
+    url: /docs/algorithm/
+  - title: 学习资源
+    url: /docs/resources.html
+
+# 插件
+plugins:
+  - jekyll-sitemap
+  - jekyll-feed
+
+# 排除文件
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .sass-cache
+  - .jekyll-cache
+  - README.md
