@@ -1,0 +1,61 @@
+<nav class="top-nav">
+    <div class="nav-container">
+        <!-- 品牌标识 -->
+        <a href="{{ '/' | relative_url }}" class="nav-brand">
+            📚 IT教师指南
+        </a>
+        
+        <!-- 导航菜单 -->
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="{{ '/' | relative_url }}" 
+                   class="{% if page.url == '/' %}active{% endif %}">
+                    首页
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ '/IT-Teacher-Guide/docs/python/01-basics.html' | relative_url }}" 
+                   class="{% if page.url contains '/python/' %}active{% endif %}">
+                    Python指南
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ '/IT-Teacher-Guide/docs/cpp/01-basics.html' | relative_url }}" 
+                   class="{% if page.url contains '/cpp/' %}active{% endif %}">
+                    C++指南
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ '/IT-Teacher-Guide/docs/data-structure/linear.html' | relative_url }}" 
+                   class="{% if page.url contains '/data-structure/' %}active{% endif %}">
+                    数据结构
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ '/IT-Teacher-Guide/docs/algorithm/sorting.html' | relative_url }}" 
+                   class="{% if page.url contains '/algorithm/' %}active{% endif %}">
+                    算法专题
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ '/IT-Teacher-Guide/docs/resources.html' | relative_url }}" 
+                   class="{% if page.url contains '/resources' %}active{% endif %}">
+                    学习资源
+                </a>
+            </li>
+        </ul>
+        
+        <!-- 搜索框 -->
+        <div class="search-box" style="position: relative;">
+            <input type="text" 
+                   id="search-input" 
+                   placeholder="搜索知识点..." 
+                   autocomplete="off">
+            <button type="button" id="search-btn">
+                🔍
+            </button>
+            <!-- 搜索结果下拉框 -->
+            <div id="search-results" class="search-results"></div>
+        </div>
+    </div>
+</nav>
