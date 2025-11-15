@@ -21,11 +21,6 @@ plugins:
   - jekyll-sitemap
   - jekyll-seo-tag
   - jekyll-feed
-  - jekyll-github-metadata
-  - jekyll-optional-front-matter
-  - jekyll-readme-index
-  - jekyll-titles-from-headings
-  - jekyll-relative-links
 
 kramdown:
   input: GFM
@@ -115,7 +110,6 @@ keep_files:
   - .git
 
 # GitHub Pages 特定配置
-github: [metadata]
 show_downloads: false
 
 # 网站信息
