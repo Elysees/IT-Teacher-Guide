@@ -1,0 +1,429 @@
+---
+layout: default
+---
+
+<div class="guide-layout">
+  <!-- 侧边栏导航 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h3>
+        <i class="fas fa-book"></i>
+        {{ page.section | default: "学习指南" }}
+      </h3>
+      <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="sidebar-content">
+      {% if page.category == 'python' %}
+        {% include python-nav.html %}
+      {% elsif page.category == 'cpp' %}
+        {% include cpp-nav.html %}
+      {% elsif page.category == 'algorithm' %}
+        {% include algorithm-nav.html %}
+      {% endif %}
+      
+      <!-- 学习进度 -->
+      <div class="progress-section">
+        <h4><i class="fas fa-chart-line"></i> 学习进度</h4>
+        <div class="progress-stats">
+          <div class="stat-item">
+            <span class="stat-number" id="completedChapters">0</span>
+            <span class="stat-label">已完成</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" id="totalChapters">21</span>
+            <span class="stat-label">总章节</span>
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-percentage" id="progressPercentage">0%</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 主要内容区域 -->
+  <div class="content-area">
+    <!-- 面包屑导航 -->
+    <nav class="breadcrumb">
+      <a href="{{ '/' | relative_url }}">
+        <i class="fas fa-home"></i>
+        首页
+      </a>
+      <span class="separator">/</span>
+      <a href="{{ '/' | append: 'docs/' | append: page.category | append: '/' | relative_url }}">
+        {{ page.section }}
+      </a>
+      {% if page.title %}
+        <span class="separator">/</span>
+        <span class="current">{{ page.title }}</span>
+      {% endif %}
+    </nav>
+
+    <!-- 文章内容 -->
+    <article class="article-content">
+      {% if page.title %}
+        <header class="article-header">
+          <h1>{{ page.title }}</h1>
+          {% if page.description %}
+            <p class="article-description">{{ page.description }}</p>
+          {% endif %}
+          
+          <!-- 文章元信息 -->
+          <div class="article-meta">
+            {% if page.difficulty %}
+              <span class="difficulty difficulty-{{ page.difficulty }}">
+                <i class="fas fa-star"></i>
+                难度: {{ page.difficulty }}
+              </span>
+            {% endif %}
+            
+            {% if page.duration %}
+              <span class="duration">
+                <i class="fas fa-clock"></i>
+                预计时间: {{ page.duration }}
+              </span>
+            {% endif %}
+            
+            {% if page.tags %}
+              <div class="tags">
+                {% for tag in page.tags %}
+                  <span class="tag">{{ tag }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </header>
+      {% endif %}
+
+      <!-- 目录 -->
+      {% if page.show_toc != false %}
+        <div class="table-of-contents" id="toc">
+          <h3><i class="fas fa-list"></i> 目录</h3>
+          <div class="toc-content" id="tocContent">
+            <!-- 由JavaScript动态生成 -->
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- 正文内容 -->
+      <div class="content-body">
+        {{ content }}
+      </div>
+
+      <!-- 章节导航 -->
+      <nav class="chapter-nav">
+        {% if page.prev_chapter %}
+          <a href="{{ page.prev_chapter.url | relative_url }}" class="nav-prev">
+            <i class="fas fa-chevron-left"></i>
+            <span>
+              <small>上一章</small>
+              <strong>{{ page.prev_chapter.title }}</strong>
+            </span>
+          </a>
+        {% endif %}
+        
+        {% if page.next_chapter %}
+          <a href="{{ page.next_chapter.url | relative_url }}" class="nav-next">
+            <span>
+              <small>下一章</small>
+              <strong>{{ page.next_chapter.title }}</strong>
+            </span>
+            <i class="fas fa-chevron-right"></i>
+          </a>
+        {% endif %}
+      </nav>
+
+      <!-- 完成标记 -->
+      <div class="chapter-completion">
+        <button class="complete-btn" id="completeBtn" data-chapter="{{ page.url }}">
+          <i class="fas fa-check"></i>
+          标记为已完成
+        </button>
+      </div>
+    </article>
+  </div>
+</div>
+
+<!-- 移动端侧边栏遮罩 -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- 移动端侧边栏切换按钮 -->
+<button class="mobile-sidebar-toggle" id="mobileSidebarToggle">
+  <i class="fas fa-bars"></i>
+</button>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // 初始化学习进度跟踪
+  initProgressTracking();
+  
+  // 初始化目录生成
+  generateTableOfContents();
+  
+  // 初始化侧边栏交互
+  initSidebarInteractions();
+  
+  // 初始化章节完成功能
+  initChapterCompletion();
+});
+
+// 学习进度跟踪
+function initProgressTracking() {
+  const navItems = document.querySelectorAll('.nav-item .nav-link');
+  const completedCount = document.getElementById('completedChapters');
+  const totalCount = document.getElementById('totalChapters');
+  const progressFill = document.getElementById('progressFill');
+  const progressPercentage = document.getElementById('progressPercentage');
+  
+  if (!navItems.length) return;
+  
+  // 从localStorage获取完成状态
+  const completedChapters = JSON.parse(localStorage.getItem('completedChapters') || '[]');
+  
+  // 更新导航项状态
+  navItems.forEach(item => {
+    const href = item.getAttribute('href');
+    if (completedChapters.includes(href)) {
+      item.closest('.nav-item').classList.add('completed');
+    }
+  });
+  
+  // 更新进度统计
+  const total = navItems.length;
+  const completed = completedChapters.filter(chapter => {
+    return Array.from(navItems).some(item => item.getAttribute('href') === chapter);
+  }).length;
+  const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+  
+  if (completedCount) completedCount.textContent = completed;
+  if (totalCount) totalCount.textContent = total;
+  if (progressFill) progressFill.style.width = percentage + '%';
+  if (progressPercentage) progressPercentage.textContent = percentage + '%';
+}
+
+// 生成目录
+function generateTableOfContents() {
+  const tocContent = document.getElementById('tocContent');
+  const headings = document.querySelectorAll('.content-body h1, .content-body h2, .content-body h3, .content-body h4');
+  
+  if (!tocContent || !headings.length) {
+    const tocContainer = document.getElementById('toc');
+    if (tocContainer) tocContainer.style.display = 'none';
+    return;
+  }
+  
+  const tocList = document.createElement('ul');
+  
+  headings.forEach((heading, index) => {
+    // 为标题添加ID
+    if (!heading.id) {
+      heading.id = 'heading-' + index;
+    }
+    
+    const listItem = document.createElement('li');
+    const link = document.createElement('a');
+    link.href = '#' + heading.id;
+    link.textContent = heading.textContent;
+    link.className = 'toc-link toc-' + heading.tagName.toLowerCase();
+    
+    // 平滑滚动
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      
+      // 更新URL但不触发页面跳转
+      if (history.pushState) {
+        history.pushState(null, null, '#' + heading.id);
+      }
+    });
+    
+    listItem.appendChild(link);
+    tocList.appendChild(listItem);
+  });
+  
+  tocContent.appendChild(tocList);
+}
+
+// 侧边栏交互
+function initSidebarInteractions() {
+  const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  
+  // 移动端侧边栏切换
+  if (mobileSidebarToggle) {
+    mobileSidebarToggle.addEventListener('click', function() {
+      sidebar.classList.add('active');
+      sidebarOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+  }
+  
+  // 关闭侧边栏
+  function closeSidebar() {
+    sidebar.classList.remove('active');
+    sidebarOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', closeSidebar);
+  }
+  
+  if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', closeSidebar);
+  }
+  
+  // ESC键关闭侧边栏
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeSidebar();
+    }
+  });
+  
+  // 窗口大小改变时处理侧边栏状态
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 768) {
+      closeSidebar();
+    }
+  });
+}
+
+// 章节完成功能
+function initChapterCompletion() {
+  const completeBtn = document.getElementById('completeBtn');
+  if (!completeBtn) return;
+  
+  const chapterUrl = completeBtn.getAttribute('data-chapter');
+  const completedChapters = JSON.parse(localStorage.getItem('completedChapters') || '[]');
+  
+  // 检查当前章节是否已完成
+  if (completedChapters.includes(chapterUrl)) {
+    completeBtn.classList.add('completed');
+    completeBtn.innerHTML = '<i class="fas fa-check-circle"></i> 已完成';
+    completeBtn.disabled = true;
+  }
+  
+  completeBtn.addEventListener('click', function() {
+    if (this.classList.contains('completed')) return;
+    
+    // 标记为已完成
+    completedChapters.push(chapterUrl);
+    localStorage.setItem('completedChapters', JSON.stringify(completedChapters));
+    
+    // 更新按钮状态
+    this.classList.add('completed');
+    this.innerHTML = '<i class="fas fa-check-circle"></i> 已完成';
+    this.disabled = true;
+    
+    // 更新进度
+    initProgressTracking();
+    
+    // 显示完成动画
+    this.style.transform = 'scale(1.1)';
+    setTimeout(() => {
+      this.style.transform = 'scale(1)';
+    }, 200);
+    
+    // 显示成功提示
+    showNotification('章节已标记为完成！', 'success');
+  });
+}
+
+// 显示通知
+function showNotification(message, type = 'info') {
+  // 创建通知元素
+  const notification = document.createElement('div');
+  notification.className = `notification notification-${type}`;
+  notification.innerHTML = `
+    <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+    <span>${message}</span>
+  `;
+  
+  // 添加样式
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: ${type === 'success' ? '#28a745' : '#17a2b8'};
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // 显示动画
+  setTimeout(() => {
+    notification.style.transform = 'translateX(0)';
+  }, 100);
+  
+  // 自动隐藏
+  setTimeout(() => {
+    notification.style.transform = 'translateX(100%)';
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.parentNode.removeChild(notification);
+      }
+    }, 300);
+  }, 3000);
+}
+
+// 滚动时高亮当前目录项
+function initTocHighlight() {
+  const tocLinks = document.querySelectorAll('.toc-link');
+  const headings = document.querySelectorAll('.content-body h1, .content-body h2, .content-body h3, .content-body h4');
+  
+  if (!tocLinks.length || !headings.length) return;
+  
+  function updateTocHighlight() {
+    let current = '';
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    headings.forEach(heading => {
+      const offsetTop = heading.offsetTop - 100;
+      if (scrollTop >= offsetTop) {
+        current = heading.id;
+      }
+    });
+    
+    tocLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === '#' + current) {
+        link.classList.add('active');
+      }
+    });
+  }
+  
+  // 节流函数
+  let ticking = false;
+  function requestTick() {
+    if (!ticking) {
+      requestAnimationFrame(updateTocHighlight);
+      ticking = true;
+      setTimeout(() => { ticking = false; }, 10);
+    }
+  }
+  
+  window.addEventListener('scroll', requestTick);
+  updateTocHighlight(); // 初始化
+}
+
+// 在DOM加载完成后初始化目录高亮
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(initTocHighlight, 100);
+});
+</script>

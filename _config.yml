@@ -1,46 +1,141 @@
-# Jekyll配置文件
+# 基本配置
 title: 信息技术教师招聘复习指南
-description: Python与C++基础知识手册 - 为教师招聘考试准备
-baseurl: ""
+description: Python与C++基础知识手册 - 为教师招聘考试准备的完整学习指南
 url: ""
+baseurl: ""
 
-# 主题配置
+# GitHub 仓库配置
+repository: your-username/IT-Teacher-Guide
+
+# SEO优化
+author: IT教师指南团队
+lang: zh-CN
+timezone: Asia/Shanghai
+
+# 主题设置
 theme: jekyll-theme-cayman
-markdown: kramdown
-highlighter: rouge
 
-# 代码高亮
+# Markdown 处理
+markdown: kramdown
+plugins:
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-feed
+  - jekyll-github-metadata
+  - jekyll-optional-front-matter
+  - jekyll-readme-index
+  - jekyll-titles-from-headings
+  - jekyll-relative-links
+
 kramdown:
   input: GFM
   syntax_highlighter: rouge
   syntax_highlighter_opts:
-    block:
-      line_numbers: true
+    css_class: 'highlight'
+    default_lang: python
+    line_numbers: false
 
-# 导航菜单
-navigation:
-  - title: 首页
-    url: /
-  - title: Python教程
-    url: /docs/python/
-  - title: C++教程
-    url: /docs/cpp/
-  - title: 算法专题
-    url: /docs/algorithm/
-  - title: 学习资源
-    url: /docs/resources.html
+# 性能优化
+sass:
+  style: compressed
+  
+# 分页配置
+paginate: 10
+paginate_path: "/page:num/"
 
-# 插件
-plugins:
-  - jekyll-sitemap
-  - jekyll-feed
+# 默认配置（优化版）
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+      
+  - scope:
+      path: "docs/python"
+    values:
+      layout: "guide"
+      category: "python"
+      section: "Python教程"
+      
+  - scope:
+      path: "docs/cpp"
+    values:
+      layout: "guide"
+      category: "cpp"
+      section: "C++教程"
+      
+  - scope:
+      path: "docs/algorithm"
+    values:
+      layout: "guide"
+      category: "algorithm"
+      section: "算法专题"
 
-# 排除文件
+# 排除文件优化
 exclude:
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
   - Gemfile
   - Gemfile.lock
-  - node_modules
-  - vendor
+  - node_modules/
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - "*.sublime-project"
+  - "*.sublime-workspace"
+  - .asset-cache
+  - .bundle
+  - .jekyll-assets-cache
   - .sass-cache
-  - .jekyll-cache
-  - README.md
+  - CHANGELOG
+  - Capfile
+  - Gruntfile.js
+  - Rakefile
+  - README
+  - config.codekit
+  - package.json
+  - gulpfile.js
+  - LICENSE
+  - log
+  - node_modules
+  - package.json
+  - Rakefile
+  - tmp
+  - /test
+
+# 包含隐藏文件
+include:
+  - .htaccess
+
+# 输出配置
+keep_files:
+  - .git
+
+# GitHub Pages 特定配置
+github: [metadata]
+show_downloads: false
+
+# 网站信息
+github:
+  owner_name: Elysees
+  owner_url: https://github.com/Elysees
+
+# 搜索配置
+search: true
+search_full_content: true
+
+# 导航配置
+navigation:
+  - title: "首页"
+    url: "/"
+  - title: "Python教程"
+    url: "/docs/python/"
+  - title: "C++教程"
+    url: "/docs/cpp/"
+  - title: "算法专题"
+    url: "/docs/algorithm/"
+  - title: "学习资源"
+    url: "/docs/resources"
