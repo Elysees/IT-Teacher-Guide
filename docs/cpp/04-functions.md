@@ -288,7 +288,7 @@ int main() {
     print_array(numbers, size);  // 已被修改
     
     // 二维数组
-    int matrix[2][3] = {{1, 2, 3}, {4, 5, 6}};
+    int matrix[2][3] = {% raw %}{{1, 2, 3}, {4, 5, 6}}{% endraw %};
     print_2d_array(matrix, 2);
     
     return 0;
