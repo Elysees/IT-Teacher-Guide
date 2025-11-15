@@ -61,13 +61,13 @@
 ## 🚀 快速开始
 
 ### 在线阅读
-访问 GitHub Pages: [https://your-username.github.io/IT-Teacher-Guide/](https://your-username.github.io/IT-Teacher-Guide/)
+访问 GitHub Pages: [https://Elysees.github.io/IT-Teacher-Guide/](https://Elysees.github.io/IT-Teacher-Guide/)
 
 ### 本地运行
 
 ```bash
 # 克隆仓库
-git clone https://github.com/your-username/IT-Teacher-Guide.git
+git clone https://github.com/Elysees/IT-Teacher-Guide.git
 cd IT-Teacher-Guide
 
 # 安装依赖 (需要Ruby和Bundler)
@@ -102,8 +102,8 @@ bundle exec jekyll serve
 
 ## 📧 联系方式
 
-- 问题反馈: [GitHub Issues](https://github.com/your-username/IT-Teacher-Guide/issues)
-- 建议讨论: [GitHub Discussions](https://github.com/your-username/IT-Teacher-Guide/discussions)
+- 问题反馈: [GitHub Issues](https://github.com/Elysees/IT-Teacher-Guide/issues)
+- 建议讨论: [GitHub Discussions](https://github.com/Elysees/IT-Teacher-Guide/discussions)
 
 ---
 
