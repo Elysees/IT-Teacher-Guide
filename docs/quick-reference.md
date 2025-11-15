@@ -900,7 +900,7 @@ int bfs(vector<vector<int>>& grid, int start_x, int start_y) {
     q.push({start_x, start_y});
     visited[start_x][start_y] = true;
     
-    int directions[4][2] = {{0,1}, {1,0}, {0,-1}, {-1,0}};
+    int directions[4][2] = {% raw %}{{0,1}, {1,0}, {0,-1}, {-1,0}}{% endraw %};
     
     while (!q.empty()) {
         auto [x, y] = q.front(); q.pop();
