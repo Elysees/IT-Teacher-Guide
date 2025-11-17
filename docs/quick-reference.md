@@ -1,3 +1,9 @@
+---
+layout: guide
+title: 速查手册
+section: 学习资源
+---
+
 # 速查手册
 
 ## 目录

@@ -1,0 +1,118 @@
+<footer class="site-footer" role="contentinfo">
+    <div class="footer-container">
+        <!-- Footer Main Content -->
+        <div class="footer-main">
+            <!-- Site Info -->
+            <div class="footer-section site-info">
+                <div class="footer-logo">
+                    <img src="{{ '/assets/images/logo.svg' | relative_url }}" alt="{{ site.title }}" class="footer-logo-image">
+                    <span class="footer-site-title">{{ site.title }}</span>
+                </div>
+                <p class="footer-description">{{ site.description }}</p>
+                
+                <!-- Social Links -->
+                <div class="social-links">
+                    <a href="{{ site.github.owner_url }}/{{ site.github.repository_name }}" 
+                       class="social-link" 
+                       aria-label="GitHub"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    {% if site.social.twitter %}
+                    <a href="{{ site.social.twitter }}" 
+                       class="social-link" 
+                       aria-label="Twitter"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    {% endif %}
+                    {% if site.social.email %}
+                    <a href="mailto:{{ site.social.email }}" 
+                       class="social-link" 
+                       aria-label="邮箱">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Quick Links -->
+            <div class="footer-section quick-links">
+                <h3 class="footer-title">快速导航</h3>
+                <ul class="footer-links">
+                    <li><a href="{{ '/docs/python/' | relative_url }}" class="footer-link">Python教程</a></li>
+                    <li><a href="{{ '/docs/cpp/' | relative_url }}" class="footer-link">C++教程</a></li>
+                    <li><a href="{{ '/docs/algorithm/' | relative_url }}" class="footer-link">算法专题</a></li>
+                    <li><a href="{{ '/docs/data-structure/' | relative_url }}" class="footer-link">数据结构</a></li>
+                </ul>
+            </div>
+            
+            <!-- Resources -->
+            <div class="footer-section resources">
+                <h3 class="footer-title">学习资源</h3>
+                <ul class="footer-links">
+                    <li><a href="{{ '/docs/FAQ.html' | relative_url }}" class="footer-link">常见问题</a></li>
+                    <li><a href="{{ '/docs/quick-reference.html' | relative_url }}" class="footer-link">速查手册</a></li>
+                    <li><a href="{{ '/docs/resources.html' | relative_url }}" class="footer-link">外部资源</a></li>
+                    <li><a href="{{ '/docs/TEACHING.html' | relative_url }}" class="footer-link">教学指南</a></li>
+                </ul>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="footer-section statistics">
+                <h3 class="footer-title">项目统计</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ site.progress.total_chapters }}</span>
+                        <span class="stat-label">总章节</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">100k+</span>
+                        <span class="stat-label">总字数</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">250+</span>
+                        <span class="stat-label">代码示例</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">16</span>
+                        <span class="stat-label">学习周数</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+            <div class="footer-bottom-content">
+                <!-- Copyright -->
+                <div class="copyright">
+                    <p>&copy; {{ 'now' | date: '%Y' }} {{ site.author }}. 保留所有权利。</p>
+                    <p>基于 <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">MIT 许可证</a> 开源</p>
+                </div>
+                
+                <!-- Build Info -->
+                <div class="build-info">
+                    <p>
+                        构建时间: <time datetime="{{ site.time | date_to_xmlschema }}">{{ site.time | date: '%Y-%m-%d %H:%M' }}</time>
+                    </p>
+                    <p>
+                        由 <a href="https://jekyllrb.com/" target="_blank" rel="noopener noreferrer">Jekyll</a> 
+                        和 <a href="https://pages.github.com/" target="_blank" rel="noopener noreferrer">GitHub Pages</a> 强力驱动
+                    </p>
+                </div>
+                
+                <!-- Theme Toggle -->
+                <div class="footer-theme-toggle">
+                    <button class="theme-toggle-footer" aria-label="切换主题" data-theme-toggle>
+                        <i class="fas fa-moon"></i>
+                        <i class="fas fa-sun"></i>
+                        <span class="theme-label">切换主题</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>

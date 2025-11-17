@@ -1,0 +1,126 @@
+---
+layout: default
+body_class: home-page
+---
+
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">{{ site.title }}</h1>
+        <p class="hero-description">{{ site.description }}</p>
+        
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="stat-item">
+                <i class="fas fa-book"></i>
+                <span class="stat-number">24</span>
+                <span class="stat-label">章节</span>
+            </div>
+            <div class="stat-item">
+                <i class="fab fa-python"></i>
+                <span class="stat-number">100k+</span>
+                <span class="stat-label">总字数</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-code"></i>
+                <span class="stat-number">250+</span>
+                <span class="stat-label">代码示例</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-chart-line"></i>
+                <span class="stat-number">16</span>
+                <span class="stat-label">学习周数</span>
+            </div>
+        </div>
+        
+        <!-- CTA Buttons -->
+        <div class="cta-buttons">
+            <a href="{{ '/docs/python/01-basics.html' | relative_url }}" class="btn btn-primary">
+                <i class="fab fa-python"></i>
+                开始Python学习
+            </a>
+            <a href="{{ '/docs/cpp/01-basics.html' | relative_url }}" class="btn btn-secondary">
+                <i class="fas fa-code"></i>
+                开始C++学习
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <h2 class="section-title">核心特色</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <h3>手册式组织</h3>
+                <p>结构化条目，便于快速查找和复习</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-code-branch"></i>
+                </div>
+                <h3>双语言对比</h3>
+                <p>Python与C++同步讲解，对比学习</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-terminal"></i>
+                </div>
+                <h3>代码即文档</h3>
+                <p>每个知识点配完整可运行示例</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3>算法实战</h3>
+                <p>排序/搜索/动态规划等高频算法</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <h3>教学友好</h3>
+                <p>FAQ、速查卡、教学指南完备</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>响应式设计</h3>
+                <p>支持手机、平板、电脑多端访问</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Learning Path Section -->
+<section class="learning-path-section">
+    <div class="container">
+        <h2 class="section-title">学习路径</h2>
+        <div class="learning-path">
+            {% for nav_item in site.navigation %}
+                {% if nav_item.children %}
+                <div class="path-section">
+                    <div class="path-header">
+                        <h3>{{ nav_item.title }}</h3>
+                        <span class="chapter-count">{{ nav_item.children.size }} 章节</span>
+                    </div>
+                    <div class="path-chapters">
+                        {% for chapter in nav_item.children %}
+                        <a href="{{ chapter.url | relative_url }}" class="chapter-link">
+                            <span class="chapter-title">{{ chapter.title }}</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+

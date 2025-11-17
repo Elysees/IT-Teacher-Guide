@@ -1,321 +1,103 @@
 <!DOCTYPE html>
 <html lang="{{ site.lang | default: 'zh-CN' }}">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  
-  {% seo %}
-  
-  <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  
-  <!-- 现代化字体 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  
-  <!-- 进度条 -->
-  <div class="progress-indicator" id="progressBar"></div>
-</head>
-<body>
-  <!-- 导航栏 -->
-  <nav class="main-nav">
-    <div class="nav-container">
-      <div class="nav-brand">
-        <a href="{{ '/' | relative_url }}">
-          <i class="fas fa-graduation-cap"></i>
-          {{ site.title }}
-        </a>
-      </div>
-      
-      <div class="nav-toggle" id="navToggle">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-      
-      <div class="nav-menu" id="navMenu">
-        {% for item in site.navigation %}
-          <a href="{{ item.url | relative_url }}" class="nav-link">{{ item.title }}</a>
-        {% endfor %}
-        
-        <div class="search-container">
-          <input type="text" id="searchInput" placeholder="搜索内容..." class="search-input">
-          <i class="fas fa-search search-icon"></i>
-          <div id="search-results" class="search-results"></div>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-  <!-- 主要内容 -->
-  <main class="main-content">
-    {{ content }}
-  </main>
-
-  <!-- 页脚 -->
-  <footer class="site-footer">
-    <div class="footer-container">
-      <div class="footer-content">
-        <div class="footer-section">
-          <h3>{{ site.title }}</h3>
-          <p>{{ site.description }}</p>
-        </div>
-        
-        <div class="footer-section">
-          <h3>快速链接</h3>
-          <ul>
-            <li><a href="{{ '/docs/python/' | relative_url }}">Python教程</a></li>
-            <li><a href="{{ '/docs/cpp/' | relative_url }}">C++教程</a></li>
-            <li><a href="{{ '/docs/algorithm/' | relative_url }}">算法专题</a></li>
-            <li><a href="{{ '/docs/resources' | relative_url }}">学习资源</a></li>
-          </ul>
-        </div>
-        
-        <div class="footer-section">
-          <h3>联系方式</h3>
-          <p>
-            <a href="{{ site.github.owner_url | default: '#' }}" target="_blank">
-              <i class="fab fa-github"></i> {{ site.github.owner_name | default: 'IT教师指南团队' }}
-            </a>
-          </p>
-        </div>
-      </div>
-      
-      <div class="footer-bottom">
-        <p>&copy; {{ 'now' | date: "%Y" }} {{ site.github.owner_name | default: 'IT教师指南团队' }}. 保留所有权利。</p>
-      </div>
-    </div>
-  </footer>
-
-  <!-- JavaScript -->
-  <!-- Lunr.js 搜索库 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.9/lunr.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/2.3.9/lunr.zh.min.js"></script>
-  
-  <script src="{{ '/assets/js/search-data.js' | relative_url }}"></script>
-  <script src="{{ '/assets/js/main.js' | relative_url }}"></script>
-</body>
-</html>
-        
-        /* 滚动进度条 */
-        .scroll-progress {
-            position: fixed;
-            top: 60px;
-            left: 0;
-            width: 0%;
-            height: 3px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            z-index: 1001;
-            transition: width 0.1s ease;
-        }
-        
-        /* 回到顶部按钮 */
-        .back-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 20px;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-        
-        .back-to-top.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .back-to-top:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .mobile-menu-toggle {
-                display: flex;
-            }
-            
-            .nav-menu {
-                position: fixed;
-                top: 60px;
-                left: 0;
-                width: 100%;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                flex-direction: column;
-                padding: 20px 0;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                transform: translateY(-100%);
-                opacity: 0;
-                visibility: hidden;
-                transition: all 0.3s ease;
-                z-index: 1001;
-            }
-            
-            .nav-menu.active {
-                transform: translateY(0);
-                opacity: 1;
-                visibility: visible;
-            }
-            
-            .nav-item {
-                margin: 0;
-                text-align: center;
-            }
-            
-            .nav-item a {
-                display: block;
-                padding: 15px 20px;
-                border-radius: 0;
-                border-bottom: 1px solid rgba(255,255,255,0.1);
-            }
-            
-            .nav-item:last-child a {
-                border-bottom: none;
-            }
-            
-            .search-box {
-                order: -1;
-                margin-bottom: 10px;
-            }
-            
-            .search-box input {
-                width: 120px;
-            }
-            
-            .main-container {
-                flex-direction: column;
-            }
-            
-            .progress-sidebar {
-                width: 100%;
-                position: static;
-                height: auto;
-            }
-            
-            .back-to-top {
-                bottom: 20px;
-                right: 20px;
-                width: 45px;
-                height: 45px;
-                font-size: 18px;
-            }
-        }
-        
-        /* 搜索结果样式 */
-        .search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            max-height: 300px;
-            overflow-y: auto;
-            z-index: 1001;
-            display: none;
-        }
-        
-        .search-result-item {
-            padding: 12px 15px;
-            border-bottom: 1px solid #f0f0f0;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        
-        .search-result-item:hover {
-            background: #f8f9fa;
-        }
-        
-        .search-result-item:last-child {
-            border-bottom: none;
-        }
-        
-        .search-result-title {
-            font-weight: bold;
-            color: #333;
-            font-size: 1rem;
-            margin-bottom: 4px;
-        }
-        
-        .search-result-category {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 12px;
-            margin-bottom: 6px;
-        }
-        
-        .search-result-excerpt {
-            font-size: 0.85rem;
-            color: #666;
-            line-height: 1.4;
-        }
-        
-        /* 搜索结果高亮 */
-        .search-result-item mark {
-            background: #fff3cd;
-            color: #856404;
-            padding: 1px 2px;
-            border-radius: 2px;
-            font-weight: bold;
-        }
-        
-        /* 搜索结果为空时的样式 */
-        .search-no-results {
-            padding: 20px 15px;
-            text-align: center;
-            color: #999;
-            font-style: italic;
-        }
-    </style>
-</head>
-<body>
-    <!-- 顶部导航栏 -->
-    {% include navigation.html %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     
-    <!-- 滚动进度条 -->
-    <div class="scroll-progress" id="scroll-progress"></div>
+    <!-- SEO Meta Tags -->
+    <title>{% if page.title %}{{ page.title }} | {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+    <meta name="description" content="{{ page.description | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
+    <meta name="keywords" content="{{ page.keywords | default: 'Python, C++, 信息技术, 教师招聘, 编程教程, 算法, 数据结构' }}">
+    <meta name="author" content="{{ site.author }}">
     
-    <!-- 主要内容区域 -->
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ page.url | absolute_url }}">
+    <meta property="og:title" content="{% if page.title %}{{ page.title }} | {{ site.title }}{% else %}{{ site.title }}{% endif %}">
+    <meta property="og:description" content="{{ page.description | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
+    <meta property="og:image" content="{{ '/assets/images/og-image.png' | absolute_url }}">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ page.url | absolute_url }}">
+    <meta property="twitter:title" content="{% if page.title %}{{ page.title }} | {{ site.title }}{% else %}{{ site.title }}{% endif %}">
+    <meta property="twitter:description" content="{{ page.description | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
+    <meta property="twitter:image" content="{{ '/assets/images/og-image.png' | absolute_url }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ '/assets/images/favicon.ico' | relative_url }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ '/assets/images/apple-touch-icon.png' | relative_url }}">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/syntax.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/navigation-fix.css' | relative_url }}">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Jekyll SEO Tag -->
+    {% seo %}
+    
+    <!-- Jekyll Feed -->
+    {% feed_meta %}
+    
+    <!-- Custom Head -->
+    {% if page.custom_head %}{{ page.custom_head }}{% endif %}
+</head>
+<body class="{% if page.body_class %}{{ page.body_class }}{% endif %}">
+    <!-- Skip to main content -->
+    <a href="#main-content" class="skip-link">跳转到主要内容</a>
+    
+    <!-- Header -->
+    {% include header.html %}
+    
+    <!-- Main Container -->
     <div class="main-container">
-        <!-- 左侧进度栏 -->
-        {% include progress.html %}
+        <!-- Sidebar -->
+        {% if page.layout != 'home' %}
+            {% include sidebar.html %}
+        {% endif %}
         
-        <!-- 主内容 -->
-        <div class="content-area">
+        <!-- Main Content -->
+        <main id="main-content" class="main-content {% if page.layout == 'home' %}home-content{% endif %}" role="main">
             {{ content }}
-        </div>
+        </main>
     </div>
     
-    <!-- 回到顶部按钮 -->
-    <button class="back-to-top" id="back-to-top" aria-label="回到顶部">
-        ↑
-    </button>
+    <!-- Footer -->
+    {% include footer.html %}
     
-    <!-- JavaScript -->
-    <!-- Lunr.js 全文搜索库 -->
-    <script src="https://unpkg.com/lunr/lunr.js"></script>
-    <!-- 中文分词支持 -->
-    <script src="https://unpkg.com/lunr-languages/lunr.stemmer.support.js"></script>
-    <script src="https://unpkg.com/lunr-languages/lunr.zh.js"></script>
-    <!-- 搜索数据 -->
-    <script src="{{ '/assets/js/search-data.js' | relative_url }}"></script>
-    <!-- 主要功能脚本 -->
+    <!-- Search Modal -->
+    {% include search-modal.html %}
+    
+    
+    <!-- Scripts -->
+    <script src="https://unpkg.com/lunr@2.3.9/lunr.min.js"></script>
     <script src="{{ '/assets/js/main.js' | relative_url }}"></script>
+    <script src="{{ '/assets/js/search.js' | relative_url }}"></script>
+    <script src="{{ '/assets/js/search-enhancements.js' | relative_url }}"></script>
+    <script src="{{ '/assets/js/code-copy.js' | relative_url }}"></script>
+    
+    <!-- Custom Scripts -->
+    {% if page.custom_js %}{{ page.custom_js }}{% endif %}
+    
+    <!-- Analytics -->
+    {% if site.google_analytics %}
+        <!-- Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ site.google_analytics }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '{{ site.google_analytics }}');
+        </script>
+    {% endif %}
 </body>
 </html>

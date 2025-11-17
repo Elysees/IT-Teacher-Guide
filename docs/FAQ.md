@@ -1,3 +1,9 @@
+---
+layout: guide
+title: 常见问题解答
+section: 学习资源
+---
+
 # 常见问题解答 (FAQ)
 
 ## 目录

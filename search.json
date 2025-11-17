@@ -1,0 +1,82 @@
+---
+layout: null
+---
+[
+  {%- for page in site.pages -%}
+    {%- unless page.url contains '/assets/' or page.url == '/404.html' or page.url == '/search.json' -%}
+      {%- assign category = 'general' -%}
+      {%- if page.url contains '/python/' -%}
+        {%- assign category = 'python' -%}
+        {%- assign section = 'Python教程' -%}
+      {%- elsif page.url contains '/cpp/' -%}
+        {%- assign category = 'cpp' -%}
+        {%- assign section = 'C++教程' -%}
+      {%- elsif page.url contains '/algorithm/' -%}
+        {%- assign category = 'algorithm' -%}
+        {%- assign section = '算法专题' -%}
+      {%- elsif page.url contains '/data-structure/' -%}
+        {%- assign category = 'data-structure' -%}
+        {%- assign section = '数据结构' -%}
+      {%- else -%}
+        {%- assign section = '学习资源' -%}
+      {%- endif -%}
+      
+      {%- assign content = page.content | strip_html | strip_newlines -%}
+      {%- assign excerpt = page.description | default: page.excerpt | default: content -%}
+      {%- assign tags = page.tags | default: '' -%}
+      {%- if tags != '' -%}
+        {%- assign tags = tags | join: ' ' -%}
+      {%- endif -%}
+      
+  {
+    "id": {{ page.url | jsonify }},
+    "title": {{ page.title | default: 'Untitled' | jsonify }},
+    "url": {{ page.url | jsonify }},
+    "category": "{{ category }}",
+    "section": "{{ section }}",
+    "excerpt": {{ excerpt | jsonify }},
+    "content": {{ content | jsonify }},
+    "tags": "{{ tags }}"
+  }{%- unless forloop.last -%},{%- endunless -%}
+    {%- endunless -%}
+  {%- endfor -%}
+  
+  {%- for doc in site.documents -%}
+    {%- unless doc.url contains '/assets/' -%}
+      {%- assign category = doc.collection -%}
+      {%- if doc.url contains '/python/' -%}
+        {%- assign category = 'python' -%}
+        {%- assign section = 'Python教程' -%}
+      {%- elsif doc.url contains '/cpp/' -%}
+        {%- assign category = 'cpp' -%}
+        {%- assign section = 'C++教程' -%}
+      {%- elsif doc.url contains '/algorithm/' -%}
+        {%- assign category = 'algorithm' -%}
+        {%- assign section = '算法专题' -%}
+      {%- elsif doc.url contains '/data-structure/' -%}
+        {%- assign category = 'data-structure' -%}
+        {%- assign section = '数据结构' -%}
+      {%- else -%}
+        {%- assign section = '学习资源' -%}
+      {%- endif -%}
+      
+      {%- assign content = doc.content | strip_html | strip_newlines -%}
+      {%- assign excerpt = doc.description | default: doc.excerpt | default: content -%}
+      {%- assign tags = doc.tags | default: '' -%}
+      {%- if tags != '' -%}
+        {%- assign tags = tags | join: ' ' -%}
+      {%- endif -%}
+      
+  ,{
+    "id": {{ doc.url | jsonify }},
+    "title": {{ doc.title | default: 'Untitled' | jsonify }},
+    "url": {{ doc.url | jsonify }},
+    "category": "{{ category }}",
+    "section": "{{ section }}",
+    "excerpt": {{ excerpt | jsonify }},
+    "content": {{ content | jsonify }},
+    "tags": "{{ tags }}"
+  }
+    {%- endunless -%}
+  {%- endfor -%}
+]

@@ -1,3 +1,9 @@
+---
+layout: guide
+title: 信息技术教学指南
+section: 教学指南
+---
+
 # 信息技术教学指南
 
 ## 目录

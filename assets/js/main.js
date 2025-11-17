@@ -1,510 +1,418 @@
-// IT教师指南 - 主要JavaScript功能
-// 包含学习进度跟踪、基于Lunr.js的全文搜索等功能
+// ===== Main JavaScript File =====
 
 (function() {
     'use strict';
-    
-    // 全局变量
-    let searchIndex = null;
-    let progressData = {
-        completed: [],
-        total: 21
-    };
-    
-    // 初始化函数
-    function init() {
-        initProgressTracking();
-        initSearchIndex();
-        initSearch();
-        initMobileMenu();
-        initScrollProgress();
-        initBackToTop();
-        initSmoothScroll();
-        initKeyboardNavigation();
-        loadProgressFromStorage();
-        updateProgressDisplay();
-    }
-    
-    // ===== 学习进度跟踪功能 =====
-    
-    function initProgressTracking() {
-        const checkboxes = document.querySelectorAll('.chapter-checkbox');
-        
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const chapterId = this.id;
-                const isCompleted = this.checked;
-                const chapterItem = this.closest('.chapter-item');
-                
-                if (isCompleted) {
-                    if (!progressData.completed.includes(chapterId)) {
-                        progressData.completed.push(chapterId);
-                    }
-                    chapterItem.classList.add('completed');
-                } else {
-                    progressData.completed = progressData.completed.filter(id => id !== chapterId);
-                    chapterItem.classList.remove('completed');
-                }
-                
-                saveProgressToStorage();
-                updateProgressDisplay();
+
+    // ===== DOM Elements =====
+    const body = document.body;
+    const header = document.querySelector('.site-header');
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const mobileNavigation = document.querySelector('.mobile-navigation');
+    const themeToggles = document.querySelectorAll('[data-theme-toggle]');
+    const backToTopButton = document.getElementById('back-to-top');
+    const readingProgressBar = document.getElementById('reading-progress-bar');
+
+    // ===== Theme Management =====
+    class ThemeManager {
+        constructor() {
+            this.currentTheme = localStorage.getItem('theme') || 'light';
+            this.init();
+        }
+
+        init() {
+            this.applyTheme(this.currentTheme);
+            this.bindEvents();
+        }
+
+        bindEvents() {
+            themeToggles.forEach(toggle => {
+                toggle.addEventListener('click', () => this.toggleTheme());
             });
-        });
-    }
-    
-    function updateProgressDisplay() {
-        const completedCount = progressData.completed.length;
-        const totalCount = progressData.total;
-        const percentage = Math.round((completedCount / totalCount) * 100);
-        
-        // 更新数字显示
-        const completedElement = document.getElementById('completed-count');
-        const totalElement = document.getElementById('total-count');
-        const percentageElement = document.getElementById('progress-percentage');
-        const progressFill = document.getElementById('progress-fill');
-        
-        if (completedElement) completedElement.textContent = completedCount;
-        if (totalElement) totalElement.textContent = totalCount;
-        if (percentageElement) percentageElement.textContent = percentage + '%';
-        if (progressFill) progressFill.style.width = percentage + '%';
-    }
-    
-    function saveProgressToStorage() {
-        try {
-            localStorage.setItem('itTeacherGuideProgress', JSON.stringify(progressData));
-        } catch (e) {
-            console.warn('无法保存学习进度到本地存储:', e);
+        }
+
+        toggleTheme() {
+            this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+            this.applyTheme(this.currentTheme);
+            localStorage.setItem('theme', this.currentTheme);
+        }
+
+        applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            
+            // Update theme toggle icons
+            themeToggles.forEach(toggle => {
+                const moonIcon = toggle.querySelector('.fa-moon');
+                const sunIcon = toggle.querySelector('.fa-sun');
+                
+                if (theme === 'dark') {
+                    if (moonIcon) moonIcon.style.display = 'none';
+                    if (sunIcon) sunIcon.style.display = 'block';
+                } else {
+                    if (moonIcon) moonIcon.style.display = 'block';
+                    if (sunIcon) sunIcon.style.display = 'none';
+                }
+            });
         }
     }
-    
-    function loadProgressFromStorage() {
-        try {
-            const saved = localStorage.getItem('itTeacherGuideProgress');
-            if (saved) {
-                const savedData = JSON.parse(saved);
-                progressData.completed = savedData.completed || [];
-                
-                // 恢复复选框状态
-                progressData.completed.forEach(chapterId => {
-                    const checkbox = document.getElementById(chapterId);
-                    const chapterItem = checkbox ? checkbox.closest('.chapter-item') : null;
-                    
-                    if (checkbox) {
-                        checkbox.checked = true;
-                    }
-                    if (chapterItem) {
-                        chapterItem.classList.add('completed');
-                    }
+
+    // ===== Mobile Menu Management =====
+    class MobileMenuManager {
+        constructor() {
+            this.isOpen = false;
+            this.init();
+        }
+
+        init() {
+            if (mobileMenuToggle && mobileNavigation) {
+                this.bindEvents();
+            }
+        }
+
+        bindEvents() {
+            mobileMenuToggle.addEventListener('click', () => this.toggleMenu());
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (this.isOpen && !header.contains(e.target)) {
+                    this.closeMenu();
+                }
+            });
+
+            // Handle submenu toggles
+            const mobileNavItems = document.querySelectorAll('.mobile-nav-item.has-children');
+            mobileNavItems.forEach(item => {
+                const link = item.querySelector('.mobile-nav-link');
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.toggleSubmenu(item);
+                });
+            });
+
+            // Close menu on window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768 && this.isOpen) {
+                    this.closeMenu();
+                }
+            });
+        }
+
+        toggleMenu() {
+            if (this.isOpen) {
+                this.closeMenu();
+            } else {
+                this.openMenu();
+            }
+        }
+
+        openMenu() {
+            this.isOpen = true;
+            mobileMenuToggle.classList.add('active');
+            mobileNavigation.classList.add('active');
+            mobileMenuToggle.setAttribute('aria-expanded', 'true');
+            body.style.overflow = 'hidden';
+        }
+
+        closeMenu() {
+            this.isOpen = false;
+            mobileMenuToggle.classList.remove('active');
+            mobileNavigation.classList.remove('active');
+            mobileMenuToggle.setAttribute('aria-expanded', 'false');
+            body.style.overflow = '';
+        }
+
+        toggleSubmenu(item) {
+            const isExpanded = item.classList.contains('expanded');
+            
+            // Close all other submenus
+            document.querySelectorAll('.mobile-nav-item.expanded').forEach(expandedItem => {
+                if (expandedItem !== item) {
+                    expandedItem.classList.remove('expanded');
+                }
+            });
+
+            // Toggle current submenu
+            item.classList.toggle('expanded', !isExpanded);
+        }
+    }
+
+    // ===== Scroll Management =====
+    class ScrollManager {
+        constructor() {
+            this.lastScrollTop = 0;
+            this.init();
+        }
+
+        init() {
+            this.bindEvents();
+            this.updateReadingProgress();
+            this.updateBackToTopButton();
+        }
+
+        bindEvents() {
+            window.addEventListener('scroll', () => {
+                this.handleScroll();
+            });
+
+            if (backToTopButton) {
+                backToTopButton.addEventListener('click', () => {
+                    this.scrollToTop();
                 });
             }
-        } catch (e) {
-            console.warn('无法从本地存储加载学习进度:', e);
         }
-    }
-    
-    // ===== 搜索索引初始化 =====
-    
-    function initSearchIndex() {
-        if (typeof lunr === 'undefined' || !window.searchData) {
-            console.warn('Lunr.js 或搜索数据未加载');
-            return;
+
+        handleScroll() {
+            this.updateReadingProgress();
+            this.updateBackToTopButton();
+            this.updateHeaderVisibility();
         }
-        
-        try {
-            // 创建 Lunr 搜索索引，支持中文
-            searchIndex = lunr(function() {
-                // 配置中文支持
-                this.use(lunr.zh);
-                
-                // 定义字段
-                this.ref('id');
-                this.field('title', { boost: 10 });
-                this.field('content', { boost: 5 });
-                this.field('category', { boost: 3 });
-                this.field('keywords', { boost: 8 });
-                
-                // 添加文档到索引
-                window.searchData.forEach(function(doc) {
-                    this.add(doc);
-                }, this);
-            });
-            
-            console.log('搜索索引初始化成功');
-        } catch (error) {
-            console.error('搜索索引初始化失败:', error);
-        }
-    }
-    
-    // ===== 知识点搜索功能 =====
-    
-    function initSearch() {
-        const searchInput = document.getElementById('search-input');
-        const searchBtn = document.getElementById('search-btn');
-        const searchResults = document.getElementById('search-results');
-        
-        if (!searchInput || !searchResults) return;
-        
-        // 搜索输入事件
-        let searchTimeout;
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            const query = this.value.trim();
-            
-            if (query.length < 2) {
-                hideSearchResults();
-                return;
-            }
-            
-            searchTimeout = setTimeout(() => {
-                performSearch(query);
-            }, 300);
-        });
-        
-        // 搜索按钮点击事件
-        if (searchBtn) {
-            searchBtn.addEventListener('click', function() {
-                const query = searchInput.value.trim();
-                if (query.length >= 2) {
-                    performSearch(query);
-                }
-            });
-        }
-        
-        // 点击外部隐藏搜索结果
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.search-box')) {
-                hideSearchResults();
-            }
-        });
-        
-        // 键盘导航
-        searchInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                hideSearchResults();
-            }
-        });
-    }
-    
-    function performSearch(query) {
-        if (!searchIndex || !window.searchData) {
-            console.warn('搜索索引未初始化');
-            return;
-        }
-        
-        try {
-            // 使用 Lunr.js 进行搜索
-            const results = searchIndex.search(query);
-            
-            // 获取搜索结果的详细信息
-            const searchResults = results.map(result => {
-                const doc = window.searchData.find(item => item.id === result.ref);
-                return {
-                    ...doc,
-                    score: result.score,
-                    excerpt: generateExcerpt(doc.content, query)
-                };
-            }).slice(0, 8); // 限制显示前8个结果
-            
-            displaySearchResults(searchResults, query);
-        } catch (error) {
-            console.error('搜索执行失败:', error);
-        }
-    }
-    
-    function generateExcerpt(content, query) {
-        if (!content || !query) return '';
-        
-        const words = query.toLowerCase().split(/\s+/);
-        const contentLower = content.toLowerCase();
-        
-        // 查找第一个匹配的关键词位置
-        let matchIndex = -1;
-        for (const word of words) {
-            const index = contentLower.indexOf(word);
-            if (index !== -1) {
-                matchIndex = index;
-                break;
-            }
-        }
-        
-        if (matchIndex === -1) {
-            return content.substring(0, 120) + '...';
-        }
-        
-        // 提取匹配位置前后的文本
-        const start = Math.max(0, matchIndex - 60);
-        const end = Math.min(content.length, matchIndex + 120);
-        let excerpt = content.substring(start, end);
-        
-        if (start > 0) excerpt = '...' + excerpt;
-        if (end < content.length) excerpt = excerpt + '...';
-        
-        return excerpt;
-    }
-    
-    function highlightText(text, query) {
-        if (!text || !query) return text;
-        
-        const words = query.split(/\s+/).filter(word => word.length > 0);
-        let highlightedText = text;
-        
-        words.forEach(word => {
-            const regex = new RegExp(`(${word})`, 'gi');
-            highlightedText = highlightedText.replace(regex, '<mark>$1</mark>');
-        });
-        
-        return highlightedText;
-    }
-    
-    function displaySearchResults(results, query) {
-        const searchResults = document.getElementById('search-results');
-        if (!searchResults) return;
-        
-        if (results.length === 0) {
-            searchResults.innerHTML = '<div class="search-no-results">未找到相关结果</div>';
-            showSearchResults();
-            return;
-        }
-        
-        const html = results.map(result => `
-            <div class="search-result-item" onclick="window.location.href='${result.url}'">
-                <div class="search-result-title">${highlightText(result.title, query)}</div>
-                <div class="search-result-category">${result.category}</div>
-                <div class="search-result-excerpt">${highlightText(result.excerpt, query)}</div>
-            </div>
-        `).join('');
-        
-        searchResults.innerHTML = html;
-        showSearchResults();
-    }
-    
-    function showSearchResults() {
-        const searchResults = document.getElementById('search-results');
-        if (searchResults) {
-            searchResults.style.display = 'block';
-        }
-    }
-    
-    function hideSearchResults() {
-        const searchResults = document.getElementById('search-results');
-        if (searchResults) {
-            searchResults.style.display = 'none';
-        }
-    }
-    
-    // ===== 响应式导航菜单功能 =====
-    
-    function initMobileMenu() {
-        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-        const navMenu = document.getElementById('nav-menu');
-        
-        if (!mobileMenuToggle || !navMenu) return;
-        
-        mobileMenuToggle.addEventListener('click', function() {
-            this.classList.toggle('active');
-            navMenu.classList.toggle('active');
-            
-            // 防止背景滚动
-            if (navMenu.classList.contains('active')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
-        });
-        
-        // 点击菜单项后关闭菜单
-        const navItems = navMenu.querySelectorAll('.nav-item a');
-        navItems.forEach(item => {
-            item.addEventListener('click', function() {
-                mobileMenuToggle.classList.remove('active');
-                navMenu.classList.remove('active');
-                document.body.style.overflow = '';
-            });
-        });
-        
-        // 点击外部关闭菜单
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.nav-container')) {
-                mobileMenuToggle.classList.remove('active');
-                navMenu.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        });
-    }
-    
-    // ===== 滚动进度指示器 =====
-    
-    function initScrollProgress() {
-        const scrollProgress = document.getElementById('scroll-progress');
-        if (!scrollProgress) return;
-        
-        const updateScrollProgress = throttle(function() {
+
+        updateReadingProgress() {
+            if (!readingProgressBar) return;
+
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
             const progress = (scrollTop / scrollHeight) * 100;
+
+            readingProgressBar.style.width = `${Math.min(progress, 100)}%`;
+        }
+
+        updateBackToTopButton() {
+            if (!backToTopButton) return;
+
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             
-            scrollProgress.style.width = Math.min(progress, 100) + '%';
-        }, 10);
-        
-        window.addEventListener('scroll', updateScrollProgress);
-        updateScrollProgress(); // 初始化
-    }
-    
-    // ===== 回到顶部按钮 =====
-    
-    function initBackToTop() {
-        const backToTopBtn = document.getElementById('back-to-top');
-        if (!backToTopBtn) return;
-        
-        const toggleBackToTop = throttle(function() {
-            if (window.pageYOffset > 300) {
-                backToTopBtn.classList.add('visible');
+            if (scrollTop > 300) {
+                backToTopButton.classList.add('visible');
             } else {
-                backToTopBtn.classList.remove('visible');
+                backToTopButton.classList.remove('visible');
             }
-        }, 100);
-        
-        window.addEventListener('scroll', toggleBackToTop);
-        
-        backToTopBtn.addEventListener('click', function() {
-            smoothScrollTo(0, 800);
-        });
+        }
+
+        updateHeaderVisibility() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > this.lastScrollTop && scrollTop > 100) {
+                // Scrolling down
+                header.classList.add('header-hidden');
+            } else {
+                // Scrolling up
+                header.classList.remove('header-hidden');
+            }
+            
+            this.lastScrollTop = scrollTop;
+        }
+
+        scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
     }
-    
-    // ===== 平滑滚动功能 =====
-    
-    function initSmoothScroll() {
-        // 为所有锚点链接添加平滑滚动
-        const anchorLinks = document.querySelectorAll('a[href^="#"]');
-        
-        anchorLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
-                const href = this.getAttribute('href');
-                if (href === '#') return;
-                
-                const target = document.querySelector(href);
-                if (target) {
+
+    // ===== Table of Contents Generator =====
+    class TOCGenerator {
+        constructor() {
+            this.tocContainer = document.getElementById('toc');
+            this.tocToggle = document.querySelector('.toc-toggle');
+            this.init();
+        }
+
+        init() {
+            if (this.tocContainer) {
+                this.generateTOC();
+                this.bindEvents();
+            }
+        }
+
+        bindEvents() {
+            if (this.tocToggle) {
+                this.tocToggle.addEventListener('click', () => {
+                    this.toggleTOC();
+                });
+            }
+
+            // Smooth scroll for TOC links
+            this.tocContainer.addEventListener('click', (e) => {
+                if (e.target.tagName === 'A') {
                     e.preventDefault();
-                    const targetPosition = target.offsetTop - 80; // 考虑固定导航栏高度
-                    smoothScrollTo(targetPosition, 800);
+                    const targetId = e.target.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
                 }
             });
-        });
-    }
-    
-    function smoothScrollTo(targetPosition, duration) {
-        const startPosition = window.pageYOffset;
-        const distance = targetPosition - startPosition;
-        let startTime = null;
-        
-        function animation(currentTime) {
-            if (startTime === null) startTime = currentTime;
-            const timeElapsed = currentTime - startTime;
-            const run = easeInOutQuad(timeElapsed, startPosition, distance, duration);
-            window.scrollTo(0, run);
-            if (timeElapsed < duration) requestAnimationFrame(animation);
         }
-        
-        requestAnimationFrame(animation);
+
+        generateTOC() {
+            const headings = document.querySelectorAll('.guide-content h2, .guide-content h3, .guide-content h4');
+            
+            if (headings.length === 0) {
+                this.tocContainer.parentElement.style.display = 'none';
+                return;
+            }
+
+            const tocList = document.createElement('ul');
+            tocList.className = 'toc-list';
+
+            headings.forEach((heading, index) => {
+                // Generate ID if not exists
+                if (!heading.id) {
+                    heading.id = `heading-${index}`;
+                }
+
+                const listItem = document.createElement('li');
+                listItem.className = `toc-item toc-${heading.tagName.toLowerCase()}`;
+
+                const link = document.createElement('a');
+                link.href = `#${heading.id}`;
+                link.textContent = heading.textContent;
+                link.className = 'toc-link';
+
+                listItem.appendChild(link);
+                tocList.appendChild(listItem);
+            });
+
+            this.tocContainer.appendChild(tocList);
+        }
+
+        toggleTOC() {
+            const tocContent = this.tocContainer.querySelector('.toc-list');
+            const isVisible = tocContent.style.display !== 'none';
+            
+            tocContent.style.display = isVisible ? 'none' : 'block';
+            this.tocToggle.classList.toggle('collapsed', isVisible);
+            
+            const icon = this.tocToggle.querySelector('i');
+            if (icon) {
+                icon.className = isVisible ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
+            }
+        }
     }
-    
-    function easeInOutQuad(t, b, c, d) {
-        t /= d / 2;
-        if (t < 1) return c / 2 * t * t + b;
-        t--;
-        return -c / 2 * (t * (t - 2) - 1) + b;
-    }
-    
-    // ===== 键盘导航支持 =====
-    
-    function initKeyboardNavigation() {
-        document.addEventListener('keydown', function(e) {
-            // Ctrl/Cmd + K 打开搜索
+
+    // ===== Keyboard Navigation =====
+    class KeyboardNavigation {
+        constructor() {
+            this.init();
+        }
+
+        init() {
+            document.addEventListener('keydown', (e) => {
+                this.handleKeydown(e);
+            });
+        }
+
+        handleKeydown(e) {
+            // ESC key - close modals/menus
+            if (e.key === 'Escape') {
+                // Close search modal
+                const searchModal = document.getElementById('search-modal');
+                if (searchModal && !searchModal.hasAttribute('aria-hidden')) {
+                    window.searchManager?.closeSearch();
+                }
+
+                // Close mobile menu
+                if (window.mobileMenuManager?.isOpen) {
+                    window.mobileMenuManager.closeMenu();
+                }
+            }
+
+            // Ctrl/Cmd + K - open search
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault();
-                const searchInput = document.getElementById('search-input');
-                if (searchInput) {
-                    searchInput.focus();
-                }
+                window.searchManager?.openSearch();
             }
-            
-            // ESC 关闭搜索结果和移动菜单
-            if (e.key === 'Escape') {
-                hideSearchResults();
-                const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-                const navMenu = document.getElementById('nav-menu');
-                if (mobileMenuToggle && navMenu) {
-                    mobileMenuToggle.classList.remove('active');
-                    navMenu.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-            }
-            
-            // 空格键回到顶部（当焦点不在输入框时）
-            if (e.key === ' ' && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
-                if (e.shiftKey) {
-                    e.preventDefault();
-                    smoothScrollTo(0, 800);
-                }
-            }
-        });
-        
-        // 改善焦点可见性
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Tab') {
-                document.body.classList.add('keyboard-navigation');
-            }
-        });
-        
-        document.addEventListener('mousedown', function() {
-            document.body.classList.remove('keyboard-navigation');
-        });
+        }
     }
-    
-    // ===== 工具函数 =====
-    
-    // 节流函数
-    function throttle(func, limit) {
-        let inThrottle;
-        return function() {
-            const args = arguments;
-            const context = this;
-            if (!inThrottle) {
-                func.apply(context, args);
-                inThrottle = true;
-                setTimeout(() => inThrottle = false, limit);
-            }
-        };
-    }
-    
-    // 防抖函数
-    function debounce(func, wait, immediate) {
-        let timeout;
-        return function() {
-            const context = this;
-            const args = arguments;
-            const later = function() {
-                timeout = null;
-                if (!immediate) func.apply(context, args);
+
+    // ===== Utility Functions =====
+    const utils = {
+        debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
             };
-            const callNow = immediate && !timeout;
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-            if (callNow) func.apply(context, args);
-        };
+        },
+
+        throttle(func, limit) {
+            let inThrottle;
+            return function() {
+                const args = arguments;
+                const context = this;
+                if (!inThrottle) {
+                    func.apply(context, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            };
+        },
+
+        formatDate(date) {
+            return new Intl.DateTimeFormat('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }).format(date);
+        },
+
+        copyToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                return navigator.clipboard.writeText(text);
+            } else {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                return new Promise((resolve, reject) => {
+                    if (document.execCommand('copy')) {
+                        textArea.remove();
+                        resolve();
+                    } else {
+                        textArea.remove();
+                        reject();
+                    }
+                });
+            }
+        }
+    };
+
+    // ===== Initialize Application =====
+    function initApp() {
+        // Initialize managers
+        window.themeManager = new ThemeManager();
+        window.mobileMenuManager = new MobileMenuManager();
+        window.scrollManager = new ScrollManager();
+        window.tocGenerator = new TOCGenerator();
+        window.keyboardNavigation = new KeyboardNavigation();
+
+        // Make utils globally available
+        window.utils = utils;
+
+        // Trigger custom event for other scripts
+        document.dispatchEvent(new CustomEvent('appInitialized'));
     }
-    
-    // 检测用户偏好的动画设置
-    function respectsReducedMotion() {
-        return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    }
-    
-    // ===== 页面加载完成后初始化 =====
-    
+
+    // ===== DOM Ready =====
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', initApp);
     } else {
-        init();
+        initApp();
     }
-    
+
 })();

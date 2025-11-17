@@ -73,6 +73,9 @@ cd IT-Teacher-Guide
 # 安装依赖 (需要Ruby和Bundler)
 bundle install
 
+# 构建站点
+bundle exec jekyll build
+
 # 启动本地服务器
 bundle exec jekyll serve
 

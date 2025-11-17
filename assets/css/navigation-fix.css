@@ -1,0 +1,114 @@
+/* ===== 底部章节导航样式修复 ===== */
+/* 使用超高优先级确保样式生效 */
+
+/* 导航容器 */
+body .content-navigation,
+html body .content-navigation {
+  margin: var(--space-12) 0 !important;
+  padding: var(--space-6) 0 !important;
+  border-top: 1px solid var(--border-color) !important;
+}
+
+/* 导航链接容器 */
+body .content-navigation .nav-links,
+html body .content-navigation .nav-links {
+  display: flex !important;
+  justify-content: space-between !important;
+  gap: var(--space-4) !important;
+  max-width: 800px !important;
+  margin: 0 auto !important;
+}
+
+/* 导航链接基础样式 */
+body .content-navigation .nav-link,
+html body .content-navigation .nav-link,
+body .content-navigation a.nav-link,
+html body .content-navigation a.nav-link {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: var(--space-4) !important;
+  padding: var(--space-5) var(--space-6) !important;
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-lg) !important;
+  text-decoration: none !important;
+  color: var(--text-secondary) !important;
+  transition: all var(--transition-fast) !important;
+  flex: 1 !important;
+  max-width: 48% !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* 上一章链接 */
+body .content-navigation .nav-prev,
+html body .content-navigation .nav-prev {
+  justify-content: flex-start !important;
+}
+
+/* 下一章链接 */
+body .content-navigation .nav-next,
+html body .content-navigation .nav-next {
+  justify-content: flex-end !important;
+}
+
+/* 悬停效果 */
+body .content-navigation .nav-link:hover,
+html body .content-navigation .nav-link:hover {
+  background: var(--bg-tertiary) !important;
+  border-color: var(--primary-color) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15) !important;
+}
+
+/* 图标样式 */
+body .content-navigation .nav-link i,
+html body .content-navigation .nav-link i,
+body .content-navigation .nav-link i.fas,
+html body .content-navigation .nav-link i.fas {
+  font-size: var(--text-xl) !important;
+  color: var(--primary-color) !important;
+  flex-shrink: 0 !important;
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+  font-style: normal !important;
+  display: inline-block !important;
+}
+
+/* 标签文字 */
+body .content-navigation .nav-label,
+html body .content-navigation .nav-label {
+  font-size: var(--text-xs) !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: var(--text-muted) !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+/* 标题文字 */
+body .content-navigation .nav-title,
+html body .content-navigation .nav-title {
+  font-size: var(--text-base) !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  body .content-navigation .nav-links,
+  html body .content-navigation .nav-links {
+    flex-direction: column !important;
+  }
+  
+  body .content-navigation .nav-link,
+  html body .content-navigation .nav-link {
+    max-width: 100% !important;
+  }
+  
+  body .content-navigation .nav-next,
+  html body .content-navigation .nav-next {
+    text-align: left !important;
+  }
+}

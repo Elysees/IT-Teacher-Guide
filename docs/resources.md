@@ -1,3 +1,9 @@
+---
+layout: guide
+title: 学习资源汇总
+section: 学习资源
+---
+
 # 学习资源汇总
 
 ## 目录

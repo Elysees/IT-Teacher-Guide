@@ -1,7 +1,5 @@
 # C++ 基础入门
 
-[← 上一章: Python常用模块](../python/06-common-modules.md) | [下一章: 数据类型与指针 →](02-data-types.md)
-
 ## 目录
 1. [C++简介](#1-c简介)
 2. [环境搭建](#2-环境搭建)
@@ -551,5 +549,3 @@ int main() {
 5. 将秒数转换为时:分:秒格式
 
 ---
-
-[← 上一章: Python常用模块](../python/06-common-modules.md) | [下一章: 数据类型与指针 →](02-data-types.md)
